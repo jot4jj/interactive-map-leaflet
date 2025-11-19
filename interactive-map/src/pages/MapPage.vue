@@ -45,7 +45,7 @@ let tileLayer = null
 const markers = ref([])
 const showSpan = ref(false)
 const showLoading = ref(false)
-const showSideSection = ref(false)
+const showSideSection = ref(true)
 const isLocation = ref(false)
 
 const myIcon = L.icon({ iconUrl: icon, iconSize: [30, 30] })
@@ -113,7 +113,6 @@ function addMarkerAt(latlng) {
 
 function toggleSidebar() {
   showSideSection.value = !showSideSection.value
-  console.log('ESTADO DA SIDEBAR:', showSideSection.value)
 }
 
 function getUserLocation() {

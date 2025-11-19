@@ -1,5 +1,5 @@
 <template>
-  <div class="fixed flex flex-col top-0 left-0 justify-evenly w-[25vw] h-full z-20">
+  <div class="fixed flex flex-col top-0 left-0 justify-evenly w-[25vw] h-full z-20 transition-all">
     <LocationControls @getUserLocation="$emit('getUserLocation')" @resetView="$emit('resetView')" />
     <MarkerPanel
       :markers="markers"

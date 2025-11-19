@@ -1,5 +1,5 @@
 <template>
-  <MapTemplate>
+  <MapTemplate>[
     <template #overlays>
       <NotificationToast v-if="showSpan">
         Nome inválido. O marcador não foi adicionado.
@@ -62,6 +62,7 @@ onMounted(() => {
       [90, 180],
     ],
     maxBoundsViscosity: 1.0,
+    zoomControl: false
   }).setView(initialCenter, initialZoom)
 
   changeTiles('light')

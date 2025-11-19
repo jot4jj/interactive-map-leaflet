@@ -1,0 +1,176 @@
+<template>
+  <MapTemplate>
+    <template #overlays>
+      <NotificationToast v-if="showSpan">
+        Nome inválido. O marcador não foi adicionado.
+      </NotificationToast>
+      <LoadingSpinner v-if="showLoading" />
+    </template>
+
+    <template #ui>
+      <SidebarToggle @toggle="toggleSidebar" />
+      <AppSideBar
+        v-if="showSideSection"
+        :markers="markers"
+        @getUserLocation="getUserLocation"
+        @resetView="resetView"
+        @clearMarkers="clearMarkers"
+        @redirect="redirectTo"
+        @remove="removeMarker"
+        @setTheme="changeTiles"
+      />
+    </template>
+  </MapTemplate>
+</template>
+
+<script setup>
+import { onMounted, ref } from 'vue'
+import * as L from 'leaflet'
+import 'leaflet/dist/leaflet.css'
+import 'leaflet.markercluster/dist/leaflet.markercluster'
+import 'leaflet.markercluster/dist/MarkerCluster.Default.css'
+import { addressPoints } from '../markerDemo' // Ajuste o caminho se necessário
+import icon from '../assets/img/icon.png'
+import icon2 from '../assets/img/icon2.png'
+
+// Importa os componentes da UI
+import MapTemplate from '../components/templates/MapTemplate.vue'
+import AppSideBar from '../components/organisms/AppSideBar.vue'
+import SidebarToggle from '../components/atoms/SidebarToggle.vue'
+import NotificationToast from '../components/atoms/NotificationToast.vue'
+import LoadingSpinner from '../components/atoms/LoadingSpinner.vue'
+
+// --- ESTADO (STATE) ---
+let markersLayer = null
+let leafletMap = null
+let tileLayer = null
+const markers = ref([])
+const showSpan = ref(false)
+const showLoading = ref(false)
+const showSideSection = ref(false) // Deixei como 'true' para facilitar o dev
+const isLocation = ref(false)
+
+// --- CONFIGURAÇÃO DO LEAFLET ---
+const myIcon = L.icon({ iconUrl: icon, iconSize: [30, 30] })
+const myIcon2 = L.icon({ iconUrl: icon2, iconSize: [30, 30] })
+const initialCenter = [-4.7155117, -37.3545429]
+const initialZoom = 12
+const darkTiles = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
+const lightTiles = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+
+// --- CICLO DE VIDA (LIFECYCLE) ---
+onMounted(() => {
+  leafletMap = L.map('map', {
+    maxBounds: [
+      [-90, -180],
+      [90, 180],
+    ],
+    maxBoundsViscosity: 1.0,
+  }).setView(initialCenter, initialZoom)
+
+  // Define o tema inicial
+  changeTiles('light')
+
+  const markersGroup = L.markerClusterGroup()
+  addressPoints.forEach((elemento, index) => {
+    const marker = L.marker([elemento.latitude, elemento.longitude], {
+      icon: myIcon,
+    })
+    marker.bindPopup(`${elemento.name}`)
+    markersGroup.addLayer(marker)
+  })
+  leafletMap.addLayer(markersGroup)
+
+  markersLayer = L.layerGroup().addTo(leafletMap)
+
+  leafletMap.on('click', (e) => {
+    addMarkerAt(e.latlng)
+  })
+})
+
+// --- MÉTODOS (LOGICA DA APLICAÇÃO) ---
+
+function changeTiles(theme) {
+  const url = theme === 'dark' ? darkTiles : lightTiles
+
+  if (tileLayer) {
+    leafletMap.removeLayer(tileLayer)
+  }
+  tileLayer = L.tileLayer(url, {
+    maxZoom: 19,
+    minZoom: 4,
+    attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+  }).addTo(leafletMap)
+}
+
+function addMarkerAt(latlng) {
+  const name = prompt('Nome do marcador:')
+  if (!name) {
+    showSpan.value = true
+    setTimeout(() => (showSpan.value = false), 3000)
+  } else {
+    const marker = L.marker(latlng, {
+      icon: myIcon2,
+    }).addTo(markersLayer)
+    marker.bindPopup(`${name}`)
+    marker.openPopup()
+    markers.value.push({ lat: latlng.lat, lng: latlng.lng, name: name })
+  }
+}
+
+function toggleSidebar() {
+  showSideSection.value = !showSideSection.value
+  console.log('ESTADO DA SIDEBAR:', showSideSection.value)
+}
+
+function getUserLocation() {
+  if (isLocation.value) return
+  showLoading.value = true
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      const { latitude, longitude } = position.coords
+      leafletMap.setView([latitude, longitude], 15)
+      L.marker([latitude, longitude], { icon: myIcon2 })
+        .addTo(markersLayer)
+        .bindPopup('Minha localização')
+        .openPopup()
+      markers.value.push({
+        lat: latitude,
+        lng: longitude,
+        name: 'Minha localização',
+      })
+      isLocation.value = true
+      showLoading.value = false
+    },
+    (error) => {
+      console.error('Erro ao obter localização:', error)
+      showLoading.value = false
+      isLocation.value = false
+    },
+  )
+}
+
+function clearMarkers() {
+  markersLayer.clearLayers()
+  markers.value = []
+  isLocation.value = false
+}
+
+function resetView() {
+  leafletMap.setView(initialCenter, initialZoom)
+}
+
+function redirectTo(marker) {
+  leafletMap.setView([marker.lat, marker.lng], initialZoom)
+}
+
+function removeMarker(index) {
+  const removed = markers.value[index]
+  markersLayer.removeLayer(markersLayer.getLayers()[index])
+  markers.value.splice(index, 1)
+
+  if (removed.name === 'Minha localização') {
+    isLocation.value = false
+  }
+}
+</script>

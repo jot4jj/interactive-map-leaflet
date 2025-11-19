@@ -1,0 +1,22 @@
+export const addressPoints = [
+  {
+    "name": "Centro",
+    "latitude": -4.71242,
+    "longitude": -37.35558
+  },
+  {
+    "name": "Ibicuitaba",
+    "latitude": -4.7400,
+    "longitude": -37.31391
+  },
+  {
+    "name": "Praia da Peroba",
+    "latitude": -4.65764,
+    "longitude": -37.45425
+  },
+  {
+    "name": "Mutamba",
+    "latitude": -4.68771,
+    "longitude": -37.39365
+  }
+  ]

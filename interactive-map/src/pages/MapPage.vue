@@ -29,28 +29,25 @@ import * as L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import 'leaflet.markercluster/dist/leaflet.markercluster'
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css'
-import { addressPoints } from '../markerDemo' // Ajuste o caminho se necessário
+import { addressPoints } from '../markerDemo' 
 import icon from '../assets/img/icon.png'
 import icon2 from '../assets/img/icon2.png'
 
-// Importa os componentes da UI
 import MapTemplate from '../components/templates/MapTemplate.vue'
 import AppSideBar from '../components/organisms/AppSideBar.vue'
 import SidebarToggle from '../components/atoms/SidebarToggle.vue'
 import NotificationToast from '../components/atoms/NotificationToast.vue'
 import LoadingSpinner from '../components/atoms/LoadingSpinner.vue'
 
-// --- ESTADO (STATE) ---
 let markersLayer = null
 let leafletMap = null
 let tileLayer = null
 const markers = ref([])
 const showSpan = ref(false)
 const showLoading = ref(false)
-const showSideSection = ref(false) // Deixei como 'true' para facilitar o dev
+const showSideSection = ref(false)
 const isLocation = ref(false)
 
-// --- CONFIGURAÇÃO DO LEAFLET ---
 const myIcon = L.icon({ iconUrl: icon, iconSize: [30, 30] })
 const myIcon2 = L.icon({ iconUrl: icon2, iconSize: [30, 30] })
 const initialCenter = [-4.7155117, -37.3545429]
@@ -58,7 +55,6 @@ const initialZoom = 12
 const darkTiles = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
 const lightTiles = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
 
-// --- CICLO DE VIDA (LIFECYCLE) ---
 onMounted(() => {
   leafletMap = L.map('map', {
     maxBounds: [
@@ -68,7 +64,6 @@ onMounted(() => {
     maxBoundsViscosity: 1.0,
   }).setView(initialCenter, initialZoom)
 
-  // Define o tema inicial
   changeTiles('light')
 
   const markersGroup = L.markerClusterGroup()
@@ -87,8 +82,6 @@ onMounted(() => {
     addMarkerAt(e.latlng)
   })
 })
-
-// --- MÉTODOS (LOGICA DA APLICAÇÃO) ---
 
 function changeTiles(theme) {
   const url = theme === 'dark' ? darkTiles : lightTiles

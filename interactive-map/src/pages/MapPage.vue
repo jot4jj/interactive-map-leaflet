@@ -32,6 +32,7 @@ import 'leaflet.markercluster/dist/MarkerCluster.Default.css'
 import { addressPoints } from '../markerDemo' 
 import icon from '../assets/img/icon.png'
 import icon2 from '../assets/img/icon2.png'
+import 'leaflet-geometryutil'
 
 import MapTemplate from '../components/templates/MapTemplate.vue'
 import AppSideBar from '../components/organisms/AppSideBar.vue'
@@ -54,6 +55,12 @@ const initialCenter = [-4.7155117, -37.3545429]
 const initialZoom = 12
 const darkTiles = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
 const lightTiles = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+const pontos = [
+  [-4.711, -37.340],
+  [-4.725, -37.355],
+  [-4.730, -37.370],
+  [-4.740, -37.385],
+];
 
 onMounted(() => {
   leafletMap = L.map('map', {
@@ -78,6 +85,25 @@ onMounted(() => {
   leafletMap.addLayer(markersGroup)
 
   markersLayer = L.layerGroup().addTo(leafletMap)
+
+  const linha = L.polyline(pontos, {
+    color: 'blue',
+    weight: 4,
+    opacity: 0.8,
+    smoothFactor: 1
+  }).addTo(leafletMap)
+
+  const distancia = L.GeometryUtil.length(linha)
+  const distanciaFormatada = (distancia / 1000).toFixed(2) + 'Km'
+  linha.bindPopup(distanciaFormatada)
+  
+  linha.on("mouseover", () => {
+    linha.setStyle({color: 'red'})
+  })
+
+  linha.on("mouseout", () => {
+    linha.setStyle({color: 'blue'})
+  })
 
   leafletMap.on('click', (e) => {
     addMarkerAt(e.latlng)

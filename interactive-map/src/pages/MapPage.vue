@@ -1,5 +1,5 @@
 <template>
-  <MapTemplate>[
+  <MapTemplate>
     <template #overlays>
       <NotificationToast v-if="showSpan">
         Nome inválido. O marcador não foi adicionado.
@@ -10,6 +10,7 @@
     <template #ui>
       <SidebarToggle @toggle="toggleSidebar" />
       <AppSideBar
+        :map="leafletMap"
         v-if="showSideSection"
         :markers="markers"
         @getUserLocation="getUserLocation"
@@ -18,6 +19,7 @@
         @redirect="redirectTo"
         @remove="removeMarker"
         @setTheme="changeTiles"
+        @found="addSearchMarker"
       />
     </template>
   </MapTemplate>
@@ -33,6 +35,7 @@ import { addressPoints } from '../markerDemo'
 import icon from '../assets/img/icon.png'
 import icon2 from '../assets/img/icon2.png'
 import 'leaflet-geometryutil'
+import { polyline } from 'leaflet'
 
 import MapTemplate from '../components/templates/MapTemplate.vue'
 import AppSideBar from '../components/organisms/AppSideBar.vue'
@@ -43,24 +46,18 @@ import LoadingSpinner from '../components/atoms/LoadingSpinner.vue'
 let markersLayer = null
 let leafletMap = null
 let tileLayer = null
+let points = []
 const markers = ref([])
 const showSpan = ref(false)
 const showLoading = ref(false)
 const showSideSection = ref(true)
 const isLocation = ref(false)
-
 const myIcon = L.icon({ iconUrl: icon, iconSize: [30, 30] })
 const myIcon2 = L.icon({ iconUrl: icon2, iconSize: [30, 30] })
 const initialCenter = [-4.7155117, -37.3545429]
 const initialZoom = 12
 const darkTiles = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
 const lightTiles = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
-const pontos = [
-  [-4.711, -37.340],
-  [-4.725, -37.355],
-  [-4.730, -37.370],
-  [-4.740, -37.385],
-];
 
 onMounted(() => {
   leafletMap = L.map('map', {
@@ -86,29 +83,49 @@ onMounted(() => {
 
   markersLayer = L.layerGroup().addTo(leafletMap)
 
-  const linha = L.polyline(pontos, {
-    color: 'blue',
-    weight: 4,
-    opacity: 0.8,
-    smoothFactor: 1
-  }).addTo(leafletMap)
+  // const line = L.polyline(points, {
+  //   color: 'blue',
+  //   weight: 4,
+  //   opacity: 0.8,
+  //   smoothFactor: 1
+  // })
 
-  const distancia = L.GeometryUtil.length(linha)
-  const distanciaFormatada = (distancia / 1000).toFixed(2) + 'Km'
-  linha.bindPopup(distanciaFormatada)
+  // line.addTo(leafletMap)
+
+  // const distancia = L.GeometryUtil.length(line)
+  // const distanciaFormatada = (distancia / 1000).toFixed(2) + 'Km'
+
+  // line.bindPopup(distanciaFormatada)
   
-  linha.on("mouseover", () => {
-    linha.setStyle({color: 'red'})
-  })
+  // line.on("mouseover", () => {
+  //   line.setStyle({color: 'red'})
+  // })
 
-  linha.on("mouseout", () => {
-    linha.setStyle({color: 'blue'})
-  })
+  // line.on("mouseout", () => {
+  //   line.setStyle({color: 'blue'})
+  // })
 
   leafletMap.on('click', (e) => {
     addMarkerAt(e.latlng)
   })
 })
+
+function addSearchMarker({lat, lon, address}) {
+  const marker = L.marker([lat, lon], {
+    icon: myIcon2
+  })
+  marker.addTo(markersLayer)
+  marker.bindPopup(address)
+  marker.openPopup()
+
+  markers.value.push({
+    lat: lat,
+    lng: lon,
+    name: address
+  })
+
+  leafletMap.setView([lat,lon], 16)
+}
 
 function changeTiles(theme) {
   const url = theme === 'dark' ? darkTiles : lightTiles

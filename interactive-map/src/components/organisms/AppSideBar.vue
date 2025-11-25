@@ -3,6 +3,7 @@
     <div
       class="fixed flex flex-col top-0 left-0 justify-evenly w-[25vw] h-full z-10 bg-[rgba(0,0,0,0.6)]"
     >
+      <SearchAddress :map="map" @found="$emit('found', $event)" />      
       <LocationControls
         @getUserLocation="$emit('getUserLocation')"
         @resetView="$emit('resetView')"
@@ -23,8 +24,11 @@ import { Transition } from "vue";
 import LocationControls from "../organisms/LocationControls.vue";
 import MarkerPanel from "../organisms/MarkerPanel.vue";
 import ThemeSwitcher from "../organisms/ThemeSwitcher.vue";
+import SearchAddress from "../atoms/SearchAddress.vue";
+
 defineProps({
   markers: Array,
+  map: Object
 });
 defineEmits([
   "getUserLocation",
@@ -33,6 +37,7 @@ defineEmits([
   "redirect",
   "remove",
   "setTheme",
+  "found"
 ]);
 </script>
 

@@ -32,9 +32,9 @@ async function search() {
         return;
     }
 
-    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(
+    const url = `http://localhost:3001/geocode?q=${encodeURIComponent(
         address.value
-    )}&format=json&limit=1`;
+    )}`;
 
     try {
     const response = await fetch(url);
@@ -53,6 +53,8 @@ async function search() {
         lon,
         address: address.value
     });
+
+    console.log(address.value)
 
     } catch (error) {
         console.error("Erro ao buscar endereço:", error);

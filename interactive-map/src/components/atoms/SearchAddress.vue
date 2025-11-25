@@ -1,23 +1,22 @@
 <template>
-<div class="w-full flex gap-2 p-4 bg-gray-900 text-white">
+<div class="w-full flex mx-4 p-2 bg-[#1E293B] text-white rounded-md">
     <input
         v-model="address"
         type="text"
         placeholder="Digite um endereço..."
         class="w-full p-2 rounded bg-gray-800 border border-gray-700 outline-none"
     />
-
-    <button
-        @click="search"
-        class="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded transition"
+    <BaseButton
+        @click="search"    
     >
         Buscar
-    </button>
+    </BaseButton>
 </div>
 </template>
 
 <script setup>
 import { ref } from "vue";
+import BaseButton from "./BaseButton.vue";
 
 const props = defineProps({
     map: Object,
@@ -59,6 +58,13 @@ async function search() {
         console.error("Erro ao buscar endereço:", error);
     }
 }
+
+document.addEventListener('keydown', (e) => {
+    if(e.key == 'Enter'){
+        return search()
+    } 
+})
+
 </script>
 
 <style scoped></style>

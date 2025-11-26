@@ -1,25 +1,26 @@
 export default async function handler(req, res) {
-  const { q } = req.query;
+  const q = req.query.q;
 
   if (!q) {
-    return res.status(400).json({ error: "Parâmetro 'q' é obrigatório." });
+    return res.status(400).json({ error: "Missing query parameter q" });
   }
 
-  try {
-    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(
-      q
-    )}&format=json&limit=1`;
+  const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(
+    q
+  )}&format=json&limit=1`;
 
+  try {
     const response = await fetch(url, {
       headers: {
-        "User-Agent": "MyLeafletApp/1.0 (your-email@example.com)"
-      }
+        "User-Agent": "InteractiveMap/1.0 (contact@example.com)",
+      },
     });
 
     const data = await response.json();
-    return res.status(200).json(data);
 
-  } catch (error) {
-    return res.status(500).json({ error: "Erro no servidor", details: error });
+    return res.status(200).json(data);
+  } catch (err) {
+    console.error("Nominatim error:", err);
+    return res.status(500).json({ error: "Internal server error" });
   }
 }

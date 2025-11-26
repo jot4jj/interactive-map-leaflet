@@ -60,7 +60,7 @@ async function search() {
     }
 
     try {
-    const response = await fetch(`/api/location?q=${address.value}`);
+    const response = await fetch(`/api/location?q=${encodeURIComponent(address.value)}`);
     const data = await response.json();
 
     if (data.length === 0) {

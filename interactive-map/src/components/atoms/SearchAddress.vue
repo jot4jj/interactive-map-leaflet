@@ -59,12 +59,8 @@ async function search() {
         return;
     }
 
-    const url = `http://localhost:3001/geocode?q=${encodeURIComponent(
-        address.value
-    )}`;
-
     try {
-    const response = await fetch(url);
+    const response = await fetch(`/api/location?q=${endereco}`);
     const data = await response.json();
 
     if (data.length === 0) {

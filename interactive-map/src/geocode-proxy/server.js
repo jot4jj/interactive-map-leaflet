@@ -9,7 +9,7 @@ app.use((req, res, next) => {
     next()
 })
 
-app.get("/geocode", async (req, res) => {
+app.get("/api/location", async (req, res) => {
     const q = req.query.q
     if (!q) {
         return res.status(400).json({ error: "Missing Query" })
